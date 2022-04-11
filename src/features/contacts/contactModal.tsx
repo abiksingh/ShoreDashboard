@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useAppDispatch } from '../../app/hooks'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 import {
@@ -28,16 +28,19 @@ interface IContactsModal {
   id: string
   open: boolean
   setOpen: (boo: boolean) => void
+  firstName: string
+  lastName: string
+  _email: string
 }
 
 const ContactsModal = (props: IContactsModal) => {
-  const { id, open, setOpen } = props
+  const { id, open, setOpen, firstName, lastName, _email } = props
 
   const dispatch = useAppDispatch()
 
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
+  const [first_name, setFirstName] = useState(firstName)
+  const [last_name, setLastName] = useState(lastName)
+  const [email, setEmail] = useState(_email)
   const [department, setDepartment] = useState('')
 
   const updateContacts = createAsyncThunk('contacts/updateContacts', async () => {
@@ -48,10 +51,7 @@ const ContactsModal = (props: IContactsModal) => {
         }
       }
 
-      const response = await axios.put(`${contactApi}/${id}`, { firstName, lastName, email }, config)
-
-      console.log(response.data)
-
+      const response = await axios.put(`${contactApi}/data/${id}`, { first_name, last_name, email }, config)
       return response.data
     } catch (error) {
       console.log(error.response)
@@ -67,6 +67,7 @@ const ContactsModal = (props: IContactsModal) => {
               onSubmit={(e) => {
                 e.preventDefault()
                 dispatch(updateContacts())
+                window.location.reload()
                 setOpen(false)
               }}
             >
@@ -82,6 +83,7 @@ const ContactsModal = (props: IContactsModal) => {
                     <TextField
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
                       required
+                      value={firstName}
                       type='text'
                       placeholder='Enter Name Here'
                     />
@@ -91,6 +93,7 @@ const ContactsModal = (props: IContactsModal) => {
                   <FormControl>
                     <FormLabel>Last Name</FormLabel>
                     <TextField
+                      value={lastName}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
                       type='text'
                       placeholder=' Enter Last Name Here'
@@ -111,6 +114,7 @@ const ContactsModal = (props: IContactsModal) => {
                   <FormControl>
                     <FormLabel>Email</FormLabel>
                     <TextField
+                      value={_email}
                       fullWidth={true}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                       required

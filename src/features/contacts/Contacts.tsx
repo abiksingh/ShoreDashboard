@@ -17,13 +17,16 @@ const Contacts = () => {
   const [open, setOpen] = React.useState(false)
   const [id, setId] = React.useState('')
   const [search, setSearch] = useState('')
+  const [first_name, setFirstName] = useState('')
+  const [last_name, setLastName] = useState('')
+  const [email, setEmail] = useState('')
 
   useEffect(() => {
     try {
       const getContacts = createAsyncThunk('contacts/fetchContacts', async () => {
-        const response = await axios.get(`${contactApi}`)
+        const response = await axios.get(`${contactApi}/data`)
 
-        return dispatch(setContacts(response.data.data))
+        return dispatch(setContacts(response.data))
       })
 
       dispatch(getContacts())
@@ -59,7 +62,7 @@ const Contacts = () => {
                   return contact
                 }
               })
-              .map((contact) => (
+              ?.map((contact) => (
                 <TableRow key={contact.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                   <TableCell align='left'>
                     <Avatar alt='Remy Sharp' src={contact.avatar} />
@@ -73,6 +76,9 @@ const Contacts = () => {
                       onClick={() => {
                         setId(contact.id)
                         setOpen(true)
+                        setFirstName(contact.first_name)
+                        setLastName(contact.last_name)
+                        setEmail(contact.email)
                       }}
                     >
                       <EditIcon />
@@ -84,7 +90,7 @@ const Contacts = () => {
         </Table>
       </TableContainer>
 
-      <ContactsModal id={id} open={open} setOpen={setOpen} />
+      <ContactsModal id={id} firstName={first_name} lastName={last_name} _email={email} open={open} setOpen={setOpen} />
     </>
   )
 }
