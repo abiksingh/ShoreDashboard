@@ -1,7 +1,5 @@
-import React, { useState } from 'react'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+import { useAppDispatch } from '../../app/hooks'
 import {
   Box,
   Button,
@@ -21,8 +19,7 @@ import {
   Typography
 } from '@mui/material'
 import { modalStyle } from './contactsStyle'
-
-const contactApi = process.env.REACT_APP_CONTACTS_API_URL
+import { updateContacts } from './contactsSlice'
 
 interface IContactsModal {
   id: string
@@ -38,25 +35,16 @@ const ContactsModal = (props: IContactsModal) => {
 
   const dispatch = useAppDispatch()
 
-  const [first_name, setFirstName] = useState(firstName)
-  const [last_name, setLastName] = useState(lastName)
-  const [email, setEmail] = useState(_email)
+  const [first_name, setFirstName] = useState('')
+  const [last_name, setLastName] = useState('')
+  const [email, setEmail] = useState('')
   const [department, setDepartment] = useState('')
 
-  const updateContacts = createAsyncThunk('contacts/updateContacts', async () => {
-    try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-
-      const response = await axios.put(`${contactApi}/data/${id}`, { first_name, last_name, email }, config)
-      return response.data
-    } catch (error) {
-      console.log(error.response)
-    }
-  })
+  useEffect(() => {
+    setFirstName(firstName)
+    setLastName(lastName)
+    setEmail(_email)
+  }, [firstName, lastName, _email])
 
   return (
     <>
@@ -66,7 +54,7 @@ const ContactsModal = (props: IContactsModal) => {
             <form
               onSubmit={(e) => {
                 e.preventDefault()
-                dispatch(updateContacts())
+                dispatch(updateContacts({ id, first_name, last_name, email }))
                 window.location.reload()
                 setOpen(false)
               }}
@@ -81,9 +69,9 @@ const ContactsModal = (props: IContactsModal) => {
                   <FormControl>
                     <FormLabel>First Name</FormLabel>
                     <TextField
+                      value={first_name}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
                       required
-                      value={firstName}
                       type='text'
                       placeholder='Enter Name Here'
                     />
@@ -93,7 +81,7 @@ const ContactsModal = (props: IContactsModal) => {
                   <FormControl>
                     <FormLabel>Last Name</FormLabel>
                     <TextField
-                      value={lastName}
+                      value={last_name}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
                       type='text'
                       placeholder=' Enter Last Name Here'
@@ -114,8 +102,8 @@ const ContactsModal = (props: IContactsModal) => {
                   <FormControl>
                     <FormLabel>Email</FormLabel>
                     <TextField
-                      value={_email}
                       fullWidth={true}
+                      value={email}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                       required
                       type='text'
